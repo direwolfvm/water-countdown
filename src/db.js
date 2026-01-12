@@ -7,7 +7,6 @@ const poolConfig = process.env.INSTANCE_CONNECTION_NAME
   ? {
       host: `/cloudsql/${process.env.INSTANCE_CONNECTION_NAME}`,
       user: process.env.DB_USER || "postgres",
-      password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME || "water-observation",
     }
   : {
