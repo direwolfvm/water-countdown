@@ -11,7 +11,7 @@ if (process.env.INSTANCE_CONNECTION_NAME) {
     host: `/cloudsql/${process.env.INSTANCE_CONNECTION_NAME}`,
     user: process.env.DB_USER || "water_user",
     password: process.env.DB_PASSWORD || "waterapp2024pass",
-    database: process.env.DB_NAME || "water-observation",
+    database: process.env.DB_NAME || "water-observations",
   };
 } else {
   // Direct TCP connection
