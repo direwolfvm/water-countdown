@@ -7,9 +7,10 @@ let poolConfig;
 
 if (process.env.INSTANCE_CONNECTION_NAME) {
   // Cloud SQL Auth Proxy - uses Unix socket with service account auth
+  // Use metabase_user which should be configured for socket auth
   poolConfig = {
     host: `/cloudsql/${process.env.INSTANCE_CONNECTION_NAME}`,
-    user: "cloud_sql_proxy",
+    user: "metabase_user",
     database: process.env.DB_NAME || "water-observation",
   };
 } else {
