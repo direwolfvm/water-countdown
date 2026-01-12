@@ -3,19 +3,25 @@ const path = require("path");
 const { Pool } = require("pg");
 
 // Support both TCP connections and Cloud SQL Auth Proxy socket
-const poolConfig = process.env.INSTANCE_CONNECTION_NAME
-  ? {
-      host: `/cloudsql/${process.env.INSTANCE_CONNECTION_NAME}`,
-      user: process.env.DB_USER || "postgres",
-      database: process.env.DB_NAME || "water-observation",
-    }
-  : {
-      host: process.env.DB_HOST,
-      port: process.env.DB_PORT ? Number(process.env.DB_PORT) : undefined,
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
-    };
+let poolConfig;
+
+if (process.env.INSTANCE_CONNECTION_NAME) {
+  // Cloud SQL Auth Proxy - uses Unix socket with service account auth
+  poolConfig = {
+    host: `/cloudsql/${process.env.INSTANCE_CONNECTION_NAME}`,
+    user: "cloud_sql_proxy",
+    database: process.env.DB_NAME || "water-observation",
+  };
+} else {
+  // Direct TCP connection
+  poolConfig = {
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT ? Number(process.env.DB_PORT) : undefined,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+  };
+}
 
 const pool = new Pool(poolConfig);
 
