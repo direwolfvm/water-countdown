@@ -2,13 +2,23 @@ const fs = require("fs");
 const path = require("path");
 const { Pool } = require("pg");
 
-const pool = new Pool({
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT ? Number(process.env.DB_PORT) : undefined,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-});
+// Support both TCP connections and Cloud SQL Auth Proxy socket
+const poolConfig = process.env.INSTANCE_CONNECTION_NAME
+  ? {
+      host: `/cloudsql/${process.env.INSTANCE_CONNECTION_NAME}`,
+      user: process.env.DB_USER || "postgres",
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME || "water-observation",
+    }
+  : {
+      host: process.env.DB_HOST,
+      port: process.env.DB_PORT ? Number(process.env.DB_PORT) : undefined,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
+    };
+
+const pool = new Pool(poolConfig);
 
 async function query(text, params) {
   return pool.query(text, params);
