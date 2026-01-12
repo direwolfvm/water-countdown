@@ -1,44 +1,17 @@
 const fs = require("fs");
 const path = require("path");
 const { Pool } = require("pg");
-const { Connector } = require("@google-cloud/cloud-sql-connector");
 
-const connector = new Connector();
-let pool;
-
-async function getPool() {
-  if (pool) {
-    return pool;
-  }
-
-  if (process.env.INSTANCE_CONNECTION_NAME) {
-    const clientOpts = await connector.getOptions({
-      instanceConnectionName: process.env.INSTANCE_CONNECTION_NAME,
-      ipType: "PUBLIC",
-      authType: "IAM",
-    });
-
-    pool = new Pool({
-      ...clientOpts,
-      user: process.env.DB_USER,
-      database: process.env.DB_NAME,
-    });
-    return pool;
-  }
-
-  pool = new Pool({
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT ? Number(process.env.DB_PORT) : undefined,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-  });
-  return pool;
-}
+const pool = new Pool({
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT ? Number(process.env.DB_PORT) : undefined,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+});
 
 async function query(text, params) {
-  const currentPool = await getPool();
-  return currentPool.query(text, params);
+  return pool.query(text, params);
 }
 
 async function ensureTable() {
@@ -96,6 +69,5 @@ async function initDb() {
 module.exports = {
   query,
   initDb,
-  getPool,
-  connector,
+  pool,
 };

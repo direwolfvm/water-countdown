@@ -13,7 +13,7 @@ A small Node.js + Express app that tracks water fountain counter observations, c
 - PostgreSQL instance (local or Cloud SQL)
 
 ## Environment variables
-Set these before running (local user/password):
+Set these before running:
 
 ```
 DB_HOST=localhost
@@ -22,16 +22,6 @@ DB_USER=postgres
 DB_PASSWORD=yourpassword
 DB_NAME=water-observation
 ```
-
-For IAM DB Auth via Cloud SQL Connector (recommended on Cloud Run), set:
-
-```
-INSTANCE_CONNECTION_NAME=permitting-ai-helper:us-east4:metabase-sql
-DB_USER=service-account@PROJECT_ID.iam.gserviceaccount.com
-DB_NAME=water-observation
-```
-
-For local IAM usage, ensure Application Default Credentials are available (for example `gcloud auth application-default login`).
 
 ## Local run
 ```
@@ -65,8 +55,6 @@ docker run --rm -p 8080:8080 \
 ## Cloud SQL connectivity notes
 - Public IP is enabled and private IP is disabled, so direct connections must use the instance public IP (for example `DB_HOST=34.186.108.171`).
 - Your local IP or Cloud Run egress IP must be added to the Cloud SQL authorized networks list; otherwise connections will be blocked.
-- For IAM DB auth, use the Cloud SQL Node.js Connector and set `INSTANCE_CONNECTION_NAME` and `DB_USER`. On Cloud Run, ensure the service account has the Cloud SQL Client role and is mapped to a database user.
-- IAM DB Auth for PostgreSQL requires enabling the instance flag for IAM DB authentication and creating a matching database user for the IAM principal.
 
 ## Cloud Run (high level)
 1) Build and push an image:
@@ -82,7 +70,7 @@ gcloud run deploy water-countdown \
   --region REGION \
   --platform managed \
   --allow-unauthenticated \
-  --set-env-vars INSTANCE_CONNECTION_NAME=permitting-ai-helper:us-east4:metabase-sql,DB_USER=service-account@PROJECT_ID.iam.gserviceaccount.com,DB_NAME=water-observation
+  --set-env-vars DB_HOST=34.186.108.171,DB_PORT=5432,DB_USER=postgres,DB_PASSWORD=...,DB_NAME=water-observation
 ```
 
 ## Project structure
