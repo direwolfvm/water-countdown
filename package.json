@@ -1,0 +1,18 @@
+{
+  "name": "water-countdown",
+  "version": "1.0.0",
+  "description": "Water fountain counter tracker with projections",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "seed": "node src/seed.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "pg": "^8.12.0"
+  }
+}

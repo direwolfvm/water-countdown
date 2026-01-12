@@ -1,0 +1,40 @@
+<section class="card">
+  <h2>All observations</h2>
+  <% if (error) { %>
+    <p class="error"><%= error %></p>
+  <% } %>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Timestamp</th>
+          <th>Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (observations.length === 0) { %>
+          <tr>
+            <td colspan="3" class="muted">No observations yet.</td>
+          </tr>
+        <% } %>
+        <% observations.forEach((obs) => { %>
+          <tr>
+            <td><%= obs.id %></td>
+            <td><%= new Date(obs.observed_at).toISOString().replace("T", " ").slice(0, 19) %></td>
+            <td><%= obs.value %></td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="card">
+  <h2>Add observation</h2>
+  <form method="POST" action="/observations" class="form-row">
+    <label for="value">Counter value</label>
+    <input type="number" step="0.01" id="value" name="value" required />
+    <button type="submit" class="button">Add</button>
+  </form>
+</section>

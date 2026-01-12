@@ -1,0 +1,74 @@
+<section class="card">
+  <div class="card-header">
+    <h2>Observation Trend</h2>
+    <a class="button" href="/observations">View and add observations</a>
+  </div>
+  <div class="chart-wrap">
+    <% if (labels.length === 0) { %>
+      <p class="muted">No observations yet. Add some on the management page.</p>
+    <% } else { %>
+      <canvas id="observationsChart" width="400" height="200"></canvas>
+    <% } %>
+  </div>
+</section>
+
+<section class="card">
+  <h2>Projection</h2>
+  <% if (projection.hasProjection) { %>
+    <div class="projection-grid">
+      <div>
+        <p class="label">Projected date to reach 30000</p>
+        <p class="value"><%= projection.projectedDate %></p>
+      </div>
+      <div>
+        <p class="label">Days remaining</p>
+        <p class="value"><%= projection.daysRemaining %></p>
+      </div>
+    </div>
+  <% } else { %>
+    <p class="muted"><%= projection.errorMessage %></p>
+  <% } %>
+</section>
+
+<% if (labels.length > 0) { %>
+<script>
+  const labels = <%- JSON.stringify(labels) %>;
+  const dataValues = <%- JSON.stringify(values) %>;
+  const ctx = document.getElementById("observationsChart").getContext("2d");
+
+  new Chart(ctx, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [
+        {
+          label: "Counter value",
+          data: dataValues,
+          borderColor: "#1b4965",
+          backgroundColor: "rgba(27, 73, 101, 0.15)",
+          tension: 0.2,
+          fill: true,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          display: false,
+        },
+      },
+      scales: {
+        x: {
+          ticks: {
+            maxTicksLimit: 6,
+          },
+        },
+        y: {
+          beginAtZero: false,
+        },
+      },
+    },
+  });
+</script>
+<% } %>
