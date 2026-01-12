@@ -1,18 +1,4 @@
 <section class="card">
-  <div class="card-header">
-    <h2>Observation Trend</h2>
-    <a class="button" href="/observations">View and add observations</a>
-  </div>
-  <div class="chart-wrap">
-    <% if (labels.length === 0) { %>
-      <p class="muted">No observations yet. Add some on the management page.</p>
-    <% } else { %>
-      <canvas id="observationsChart" width="400" height="200"></canvas>
-    <% } %>
-  </div>
-</section>
-
-<section class="card">
   <h2>Projection</h2>
   <% if (projection.hasProjection) { %>
     <div class="projection-grid">
@@ -28,6 +14,20 @@
   <% } else { %>
     <p class="muted"><%= projection.errorMessage %></p>
   <% } %>
+</section>
+
+<section class="card">
+  <div class="card-header">
+    <h2>Observation Trend</h2>
+    <a class="button" href="/observations">View and add observations</a>
+  </div>
+  <div class="chart-wrap">
+    <% if (labels.length === 0) { %>
+      <p class="muted">No observations yet. Add some on the management page.</p>
+    <% } else { %>
+      <canvas id="observationsChart" width="400" height="200"></canvas>
+    <% } %>
+  </div>
 </section>
 
 <% if (labels.length > 0) { %>
