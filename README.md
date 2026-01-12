@@ -13,14 +13,22 @@ A small Node.js + Express app that tracks water fountain counter observations, c
 - PostgreSQL instance (local or Cloud SQL)
 
 ## Environment variables
-Set these before running:
 
+### For local/direct TCP connection:
 ```
 DB_HOST=localhost
 DB_PORT=5432
 DB_USER=postgres
 DB_PASSWORD=yourpassword
-DB_NAME=water-observation
+DB_NAME=water-observations
+```
+
+### For Cloud SQL Auth Proxy (Cloud Run):
+```
+INSTANCE_CONNECTION_NAME=PROJECT_ID:REGION:INSTANCE_NAME
+DB_USER=water_user
+DB_PASSWORD=waterapp2024pass
+DB_NAME=water-observations
 ```
 
 ## Local run
@@ -40,7 +48,7 @@ npm run seed
 ```
 
 ## Docker
-Build and run locally:
+Build and run locally with direct TCP connection:
 ```
 docker build -t water-countdown .
 docker run --rm -p 8080:8080 \
@@ -48,30 +56,32 @@ docker run --rm -p 8080:8080 \
   -e DB_PORT=5432 \
   -e DB_USER=postgres \
   -e DB_PASSWORD=yourpassword \
-  -e DB_NAME=water-observation \
+  -e DB_NAME=water-observations \
   water-countdown
 ```
 
 ## Cloud SQL connectivity notes
-- Public IP is enabled and private IP is disabled, so direct connections must use the instance public IP (for example `DB_HOST=34.186.108.171`).
-- Your local IP or Cloud Run egress IP must be added to the Cloud SQL authorized networks list; otherwise connections will be blocked.
+- The app supports two connection modes:
+  - **TCP direct connection**: Use the Cloud SQL public IP (requires authorized networks firewall rule)
+  - **Cloud SQL Auth Proxy socket** (recommended for Cloud Run): Uses service account authentication via Unix socket, no password needed in proxy config
 
-## Cloud Run (high level)
-1) Build and push an image:
+## Cloud Run deployment
+The app is configured to deploy from GitHub via Cloud Build. On Cloud Run, it uses Cloud SQL Auth Proxy for secure socket-based connections.
+
+Required setup:
+1. Create a database user for the app:
 ```
-docker build -t gcr.io/PROJECT_ID/water-countdown .
-docker push gcr.io/PROJECT_ID/water-countdown
+gcloud sql users create water_user --instance=INSTANCE_NAME --password=waterapp2024pass
 ```
 
-2) Deploy to Cloud Run:
+2. Ensure the `water-observations` database exists:
 ```
-gcloud run deploy water-countdown \
-  --image gcr.io/PROJECT_ID/water-countdown \
-  --region REGION \
-  --platform managed \
-  --allow-unauthenticated \
-  --set-env-vars DB_HOST=34.186.108.171,DB_PORT=5432,DB_USER=postgres,DB_PASSWORD=...,DB_NAME=water-observation
+gcloud sql databases create water-observations --instance=INSTANCE_NAME
 ```
+
+3. Environment variables are automatically set by Cloud Build/Cloud Run:
+   - `INSTANCE_CONNECTION_NAME` is injected via the `cloudsql-instances` annotation
+   - The app uses `water_user` with its password for authentication via the Unix socket
 
 ## Project structure
 ```
