@@ -26,6 +26,8 @@ router.post("/bulk", async (req, res, next) => {
     const ids = Array.isArray(req.body.id) ? req.body.id : [req.body.id];
     const updates = [];
     const deletes = [];
+    const deletePassword = req.body.delete_password;
+    let deleteDenied = false;
 
     for (const idRaw of ids) {
       const id = Number(idRaw);
@@ -35,6 +37,10 @@ router.post("/bulk", async (req, res, next) => {
 
       const deleteFlag = req.body[`delete_${id}`];
       if (deleteFlag) {
+        if (deletePassword !== "fountain") {
+          deleteDenied = true;
+          continue;
+        }
         deletes.push(id);
         continue;
       }
@@ -55,6 +61,19 @@ router.post("/bulk", async (req, res, next) => {
         value,
         id,
       ]);
+    }
+
+    if (deleteDenied) {
+      const { rows } = await query(
+        "SELECT id, observed_at, value FROM observations ORDER BY observed_at ASC"
+      );
+      return res.status(403).render("layout", {
+        title: "Manage Observations",
+        body: "observations",
+        observations: rows,
+        error: "Delete password incorrect. No rows were deleted.",
+        editMode: true,
+      });
     }
 
     return res.redirect("/observations");

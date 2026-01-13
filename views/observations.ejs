@@ -55,6 +55,10 @@
     </div>
     <% if (editMode) { %>
       <div class="form-actions">
+        <label class="delete-confirmation" for="delete_password">
+          Delete password
+          <input type="password" id="delete_password" name="delete_password" placeholder="fountain" />
+        </label>
         <button type="submit" class="button">Save changes</button>
         <a class="button button-secondary" href="/observations">Cancel</a>
       </div>

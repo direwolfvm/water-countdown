@@ -34,7 +34,7 @@
       <p><strong>y = m * t + b</strong></p>
       <p>m (slope): <%= (projection.regression.slope * 86400).toFixed(4) %> per day</p>
       <p>b (intercept): <%= projection.regression.intercept.toFixed(2) %></p>
-      <p>t = seconds since <%= new Date(projection.regression.t0).toISOString().slice(0, 10) %></p>
+      <p>t = days since <%= new Date(projection.regression.t0).toISOString().slice(0, 10) %></p>
     <% } else { %>
       <p class="muted">Regression not available yet.</p>
     <% } %>
