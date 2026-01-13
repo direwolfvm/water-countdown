@@ -22,49 +22,102 @@
     <a class="button" href="/observations">View and add observations</a>
   </div>
   <div class="chart-wrap">
-    <% if (labels.length === 0) { %>
+    <% if (chartPoints.length === 0) { %>
       <p class="muted">No observations yet. Add some on the management page.</p>
     <% } else { %>
       <canvas id="observationsChart" width="400" height="200"></canvas>
     <% } %>
   </div>
+  <div class="regression-panel">
+    <h3>Regression equation</h3>
+    <% if (projection.hasRegression) { %>
+      <p><strong>y = m * t + b</strong></p>
+      <p>m (slope): <%= projection.regression.slope.toFixed(6) %> per second</p>
+      <p>b (intercept): <%= projection.regression.intercept.toFixed(2) %></p>
+      <p>t = seconds since <%= new Date(projection.regression.t0).toISOString().slice(0, 10) %></p>
+    <% } else { %>
+      <p class="muted">Regression not available yet.</p>
+    <% } %>
+  </div>
 </section>
 
-<% if (labels.length > 0) { %>
+<% if (chartPoints.length > 0) { %>
 <script>
-  const labels = <%- JSON.stringify(labels) %>;
-  const dataValues = <%- JSON.stringify(values) %>;
+  const chartPoints = <%- JSON.stringify(chartPoints) %>;
+  const regressionLine = <%- JSON.stringify(regressionLine) %>;
+  const chartStartMs = <%- JSON.stringify(chartStartMs) %>;
   const ctx = document.getElementById("observationsChart").getContext("2d");
 
+  const datasets = [
+    {
+      label: "Observations",
+      data: chartPoints,
+      borderColor: "#1b4965",
+      backgroundColor: "rgba(27, 73, 101, 0.15)",
+      tension: 0.2,
+      showLine: true,
+      pointRadius: 4,
+    },
+  ];
+
+  if (regressionLine.length > 0) {
+    datasets.push({
+      label: "Regression",
+      data: regressionLine,
+      borderColor: "#5fa8d3",
+      backgroundColor: "rgba(95, 168, 211, 0.15)",
+      borderDash: [6, 6],
+      showLine: true,
+      pointRadius: 0,
+      tension: 0,
+    });
+  }
+
   new Chart(ctx, {
-    type: "line",
+    type: "scatter",
     data: {
-      labels,
-      datasets: [
-        {
-          label: "Counter value",
-          data: dataValues,
-          borderColor: "#1b4965",
-          backgroundColor: "rgba(27, 73, 101, 0.15)",
-          tension: 0.2,
-          fill: true,
-        },
-      ],
+      datasets,
     },
     options: {
       responsive: true,
+      parsing: false,
       plugins: {
         legend: {
-          display: false,
+          display: true,
+        },
+        tooltip: {
+          callbacks: {
+            label: (context) => {
+              const seconds = context.parsed.x || 0;
+              const date = new Date(chartStartMs + seconds * 1000);
+              return `${context.dataset.label}: ${context.parsed.y} (${date.toLocaleDateString("en-US")})`;
+            },
+          },
         },
       },
       scales: {
         x: {
+          type: "linear",
+          title: {
+            display: true,
+            text: "Date",
+          },
           ticks: {
+            callback: (value) => {
+              const date = new Date(chartStartMs + value * 1000);
+              return date.toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+              });
+            },
             maxTicksLimit: 6,
           },
         },
         y: {
+          title: {
+            display: true,
+            text: "Counter value",
+          },
           beginAtZero: false,
         },
       },

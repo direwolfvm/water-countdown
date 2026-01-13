@@ -15,18 +15,36 @@ router.get("/", async (req, res, next) => {
       value: Number(row.value),
     }));
 
-    const labels = observations.map((obs) =>
-      obs.observed_at.toISOString().slice(0, 19).replace("T", " ")
-    );
-    const values = observations.map((obs) => obs.value);
-
     const projection = computeProjection(observations);
+
+    let chartPoints = [];
+    let regressionLine = [];
+    let chartStartMs = null;
+
+    if (observations.length > 0) {
+      chartStartMs = observations[0].observed_at.getTime();
+      chartPoints = observations.map((obs) => ({
+        x: (obs.observed_at.getTime() - chartStartMs) / 1000,
+        y: obs.value,
+      }));
+    }
+
+    if (projection.hasRegression && chartPoints.length > 1) {
+      const { slope, intercept } = projection.regression;
+      const tStart = 0;
+      const tEnd = chartPoints[chartPoints.length - 1].x;
+      regressionLine = [
+        { x: tStart, y: intercept + slope * tStart },
+        { x: tEnd, y: intercept + slope * tEnd },
+      ];
+    }
 
     res.render("layout", {
       title: "Water Fountain Tracker",
       body: "dashboard",
-      labels,
-      values,
+      chartPoints,
+      regressionLine,
+      chartStartMs,
       projection,
     });
   } catch (err) {
