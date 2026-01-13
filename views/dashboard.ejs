@@ -28,12 +28,6 @@
       <canvas id="observationsChart" width="400" height="200"></canvas>
     <% } %>
   </div>
-  <% if (chartPoints.length > 0) { %>
-    <label class="zoom-toggle">
-      <input type="checkbox" id="zoomToggle" />
-      Zoom to data range
-    </label>
-  <% } %>
   <div class="regression-panel">
     <h3>Regression equation</h3>
     <% if (projection.hasRegression) { %>
@@ -52,9 +46,7 @@
   const chartPoints = <%- JSON.stringify(chartPoints) %>;
   const regressionLine = <%- JSON.stringify(regressionLine) %>;
   const chartStartMs = <%- JSON.stringify(chartStartMs) %>;
-  const chartMaxY = <%- JSON.stringify(chartMaxY) %>;
   const ctx = document.getElementById("observationsChart").getContext("2d");
-  const zoomToggle = document.getElementById("zoomToggle");
 
   const datasets = [
     {
@@ -81,7 +73,7 @@
     });
   }
 
-  const chart = new Chart(ctx, {
+  new Chart(ctx, {
     type: "scatter",
     data: {
       datasets,
@@ -126,22 +118,10 @@
             display: true,
             text: "Counter value",
           },
-          max: 30000,
           beginAtZero: false,
         },
       },
     },
   });
-
-  if (zoomToggle) {
-    zoomToggle.addEventListener("change", (event) => {
-      if (event.target.checked) {
-        chart.options.scales.y.max = Math.ceil(chartMaxY);
-      } else {
-        chart.options.scales.y.max = 30000;
-      }
-      chart.update();
-    });
-  }
 </script>
 <% } %>
