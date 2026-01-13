@@ -93,6 +93,15 @@ main {
   margin-top: 1rem;
 }
 
+.zoom-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
 .regression-panel {
   margin-top: 1.5rem;
   padding: 1rem;

@@ -20,6 +20,7 @@ router.get("/", async (req, res, next) => {
     let chartPoints = [];
     let regressionLine = [];
     let chartStartMs = null;
+    let chartMaxY = 30000;
 
     if (observations.length > 0) {
       chartStartMs = observations[0].observed_at.getTime();
@@ -27,6 +28,8 @@ router.get("/", async (req, res, next) => {
         x: (obs.observed_at.getTime() - chartStartMs) / 1000,
         y: obs.value,
       }));
+      const maxValue = Math.max(...chartPoints.map((point) => point.y));
+      chartMaxY = Math.max(maxValue * 1.1, maxValue + 100, 1000);
     }
 
     if (projection.hasRegression && chartPoints.length > 1) {
@@ -45,6 +48,7 @@ router.get("/", async (req, res, next) => {
       chartPoints,
       regressionLine,
       chartStartMs,
+      chartMaxY,
       projection,
     });
   } catch (err) {
