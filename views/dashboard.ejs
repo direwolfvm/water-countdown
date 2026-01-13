@@ -32,7 +32,7 @@
     <h3>Regression equation</h3>
     <% if (projection.hasRegression) { %>
       <p><strong>y = m * t + b</strong></p>
-      <p>m (slope): <%= projection.regression.slope.toFixed(6) %> per second</p>
+      <p>m (slope): <%= (projection.regression.slope * 86400).toFixed(4) %> per day</p>
       <p>b (intercept): <%= projection.regression.intercept.toFixed(2) %></p>
       <p>t = seconds since <%= new Date(projection.regression.t0).toISOString().slice(0, 10) %></p>
     <% } else { %>

@@ -84,6 +84,11 @@ main {
   cursor: pointer;
 }
 
+.button-secondary {
+  background: #dbe7ef;
+  color: var(--deep-blue);
+}
+
 .chart-wrap {
   margin-top: 1rem;
 }
@@ -153,6 +158,16 @@ input[type="number"] {
   border-radius: 8px;
   border: 1px solid #cfd8dc;
   font-size: 1rem;
+}
+
+.inline-input {
+  max-width: 140px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
 }
 
 .error {
