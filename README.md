@@ -4,7 +4,8 @@ A small Node.js + Express app that tracks water fountain counter observations, c
 
 ## Features
 - Dashboard with time-series chart and projection to 30,000.
-- Management page to list and add observations.
+- Management page to list and add observations by fountain.
+- Manage multiple fountains with per-fountain targets.
 - PostgreSQL-backed storage (Cloud SQL compatible).
 - Simple server-rendered EJS templates.
 
@@ -82,6 +83,10 @@ gcloud sql databases create water-observations --instance=INSTANCE_NAME
 3. Environment variables are automatically set by Cloud Build/Cloud Run:
    - `INSTANCE_CONNECTION_NAME` is injected via the `cloudsql-instances` annotation
    - The app uses `water_user` with its password for authentication via the Unix socket
+
+## Data model
+- `fountains` table: `id`, `name`, `target`.
+- `observations` table now includes `fountain_id` and existing rows are attached to the default fountain `734 JP` (target 30,000).
 
 ## Project structure
 ```

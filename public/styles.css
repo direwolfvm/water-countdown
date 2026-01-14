@@ -70,6 +70,31 @@ main {
   gap: 0.75rem;
 }
 
+.inline-form {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.inline-form select {
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #cfd8dc;
+  font-size: 1rem;
+  background: #fff;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
 .button {
   display: inline-flex;
   align-items: center;
@@ -153,6 +178,10 @@ td {
   gap: 0.75rem;
 }
 
+.fountain-form {
+  grid-template-columns: 1fr;
+}
+
 input[type="number"] {
   padding: 0.6rem;
   border-radius: 8px;
@@ -214,5 +243,9 @@ input[type="number"] {
   .form-row {
     grid-template-columns: 1fr 2fr auto;
     align-items: end;
+  }
+
+  .fountain-form {
+    grid-template-columns: 1fr 1.5fr 1fr 1fr auto;
   }
 }

@@ -1,9 +1,32 @@
 <section class="card">
+  <% const targetLabel = selectedFountain ? selectedFountain.target : 30000; %>
+  <div class="card-header">
+    <div>
+      <h2><%= selectedFountain ? selectedFountain.name : "No fountain selected" %></h2>
+      <p class="muted">Target: <%= targetLabel %></p>
+    </div>
+    <% if (fountains.length > 0) { %>
+      <form method="GET" action="/" class="inline-form">
+        <label for="fountain_id" class="sr-only">Select fountain</label>
+        <select id="fountain_id" name="fountain_id">
+          <% fountains.forEach((fountain) => { %>
+            <option value="<%= fountain.id %>" <%= selectedFountain && fountain.id === selectedFountain.id ? "selected" : "" %>>
+              <%= fountain.name %>
+            </option>
+          <% }); %>
+        </select>
+        <button type="submit" class="button">Switch</button>
+      </form>
+    <% } %>
+  </div>
+</section>
+
+<section class="card">
   <h2>Projection</h2>
   <% if (projection.hasProjection) { %>
     <div class="projection-grid">
       <div>
-        <p class="label">Projected date to reach 30000</p>
+        <p class="label">Projected date to reach <%= targetLabel %></p>
         <p class="value"><%= projection.projectedDate %></p>
       </div>
       <div>

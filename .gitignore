@@ -137,3 +137,12 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+*.swp
+*~
+.env.local
+.DS_Store

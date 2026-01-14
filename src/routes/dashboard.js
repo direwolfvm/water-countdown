@@ -6,16 +6,31 @@ const router = express.Router();
 
 router.get("/", async (req, res, next) => {
   try {
-    const { rows } = await query(
-      "SELECT observed_at, value FROM observations ORDER BY observed_at ASC"
+    const fountainsResult = await query(
+      "SELECT id, name, target FROM fountains ORDER BY name ASC"
     );
+    const fountains = fountainsResult.rows;
+    const requestedId = Number(req.query.fountain_id);
+    const defaultFountain = fountains[0] || null;
+    const selectedFountain =
+      fountains.find((fountain) => fountain.id === requestedId) ||
+      defaultFountain;
+
+    const { rows } = selectedFountain
+      ? await query(
+          "SELECT observed_at, value FROM observations WHERE fountain_id = $1 ORDER BY observed_at ASC",
+          [selectedFountain.id]
+        )
+      : { rows: [] };
 
     const observations = rows.map((row) => ({
       observed_at: new Date(row.observed_at),
       value: Number(row.value),
     }));
 
-    const projection = computeProjection(observations);
+    const targetValue = selectedFountain ? Number(selectedFountain.target) : 30000;
+    const target = Number.isNaN(targetValue) ? 30000 : targetValue;
+    const projection = computeProjection(observations, target);
 
     let chartPoints = [];
     let regressionLine = [];
@@ -42,6 +57,8 @@ router.get("/", async (req, res, next) => {
     res.render("layout", {
       title: "Water Fountain Tracker",
       body: "dashboard",
+      fountains,
+      selectedFountain,
       chartPoints,
       regressionLine,
       chartStartMs,

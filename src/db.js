@@ -31,17 +31,61 @@ async function query(text, params) {
 }
 
 async function ensureTable() {
-  const createSql = `
+  const createFountains = `
+    CREATE TABLE IF NOT EXISTS fountains (
+      id SERIAL PRIMARY KEY,
+      name TEXT NOT NULL UNIQUE,
+      target NUMERIC NOT NULL
+    );
+  `;
+  await query(createFountains);
+
+  const createObservations = `
     CREATE TABLE IF NOT EXISTS observations (
       id SERIAL PRIMARY KEY,
       observed_at TIMESTAMPTZ NOT NULL,
       value NUMERIC NOT NULL
     );
   `;
-  await query(createSql);
+  await query(createObservations);
+
+  await query("ALTER TABLE observations ADD COLUMN IF NOT EXISTS fountain_id INTEGER");
+  await query("CREATE INDEX IF NOT EXISTS idx_observations_fountain_id ON observations(fountain_id)");
+
+  await query(`
+    DO $$
+    BEGIN
+      IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint WHERE conname = 'observations_fountain_id_fkey'
+      ) THEN
+        ALTER TABLE observations
+        ADD CONSTRAINT observations_fountain_id_fkey
+        FOREIGN KEY (fountain_id)
+        REFERENCES fountains(id)
+        ON DELETE CASCADE;
+      END IF;
+    END
+    $$;
+  `);
+}
+
+async function ensureDefaultFountain() {
+  const { rows } = await query("SELECT id FROM fountains WHERE name = $1", [
+    "734 JP",
+  ]);
+  if (rows.length > 0) {
+    return rows[0].id;
+  }
+
+  const insert = await query(
+    "INSERT INTO fountains (name, target) VALUES ($1, $2) RETURNING id",
+    ["734 JP", 30000]
+  );
+  return insert.rows[0].id;
 }
 
 async function seedIfEmpty() {
+  const defaultFountainId = await ensureDefaultFountain();
   const { rows } = await query("SELECT COUNT(*)::int AS count FROM observations");
   if (rows[0].count > 0) {
     return;
@@ -71,14 +115,19 @@ async function seedIfEmpty() {
     }
 
     await query(
-      "INSERT INTO observations (observed_at, value) VALUES ($1, $2)",
-      [observedAt.toISOString(), value]
+      "INSERT INTO observations (observed_at, value, fountain_id) VALUES ($1, $2, $3)",
+      [observedAt.toISOString(), value, defaultFountainId]
     );
   }
 }
 
 async function initDb() {
   await ensureTable();
+  const defaultFountainId = await ensureDefaultFountain();
+  await query("UPDATE observations SET fountain_id = $1 WHERE fountain_id IS NULL", [
+    defaultFountainId,
+  ]);
+  await query("ALTER TABLE observations ALTER COLUMN fountain_id SET NOT NULL");
   await seedIfEmpty();
 }
 

@@ -1,4 +1,4 @@
-function computeProjection(observations) {
+function computeProjection(observations, target) {
   if (!Array.isArray(observations) || observations.length < 2) {
     return {
       hasRegression: false,
@@ -51,7 +51,6 @@ function computeProjection(observations) {
     };
   }
 
-  const target = 30000;
   const tTarget = (target - intercept) / slope;
   const projectedDate = new Date(t0 + tTarget * 1000);
 
