@@ -88,6 +88,16 @@
 </section>
 
 <section class="card">
+  <h2>Add observation</h2>
+  <form method="POST" action="/observations" class="form-row">
+    <input type="hidden" name="fountain_id" value="<%= selectedFountain ? selectedFountain.id : "" %>" />
+    <label for="value">Counter value</label>
+    <input type="number" step="0.01" id="value" name="value" required />
+    <button type="submit" class="button">Add</button>
+  </form>
+</section>
+
+<section class="card">
   <h2>Fountains</h2>
   <% if (fountainError) { %>
     <p class="error"><%= fountainError %></p>
@@ -131,14 +141,4 @@
       </tbody>
     </table>
   </div>
-</section>
-
-<section class="card">
-  <h2>Add observation</h2>
-  <form method="POST" action="/observations" class="form-row">
-    <input type="hidden" name="fountain_id" value="<%= selectedFountain ? selectedFountain.id : "" %>" />
-    <label for="value">Counter value</label>
-    <input type="number" step="0.01" id="value" name="value" required />
-    <button type="submit" class="button">Add</button>
-  </form>
 </section>
