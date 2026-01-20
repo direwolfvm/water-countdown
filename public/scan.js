@@ -164,9 +164,9 @@ function preprocessForOcr(sourceCanvas) {
   }
 
   // Write back: dilated digit pixels → black, background → white
-  // Also clear edges (10% margin) to remove LCD border frame
-  const marginX = Math.floor(width * 0.10);
-  const marginY = Math.floor(height * 0.15);
+  // Clear edges to remove LCD border frame (generous margins)
+  const marginX = Math.floor(width * 0.12);
+  const marginY = Math.floor(height * 0.20);
 
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
