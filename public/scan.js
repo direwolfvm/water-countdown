@@ -145,8 +145,9 @@ function preprocessForOcr(sourceCanvas) {
   }
 
   // Dilate: expand black (digit) pixels to fill gaps in 7-segment display
+  // Use small radius to avoid merging digits with LCD border
   const dilated = new Uint8Array(width * height);
-  const radius = 2;
+  const radius = 1;
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       let found = 0;
