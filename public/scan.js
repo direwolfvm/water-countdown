@@ -165,28 +165,51 @@ async function loadTesseract() {
     corePath: "https://cdn.jsdelivr.net/npm/tesseract.js-core@5/tesseract-core.wasm.js",
   });
 
-  // Configure for digits only, optimized for LCD 7-segment displays
+  // Configure for digits - use PSM 6 (uniform text block) for better LCD recognition
   await tesseractWorker.setParameters({
     tessedit_char_whitelist: "0123456789",
-    tessedit_pageseg_mode: "7", // Single line
+    tessedit_pageseg_mode: "6",
   });
 
   return tesseractWorker;
 }
 
+// Add white padding around image for better OCR
+function addPadding(sourceCanvas, padding = 20) {
+  const padCanvas = document.createElement("canvas");
+  padCanvas.width = sourceCanvas.width + padding * 2;
+  padCanvas.height = sourceCanvas.height + padding * 2;
+  const ctx = padCanvas.getContext("2d");
+
+  // Fill with white
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, padCanvas.width, padCanvas.height);
+
+  // Draw original centered
+  ctx.drawImage(sourceCanvas, padding, padding);
+  return padCanvas;
+}
+
 // Run OCR on the cropped canvas
 async function runOcr(canvas) {
-  // Preprocess for LCD display (invert, threshold)
+  // Preprocess for LCD display
   const processedCanvas = preprocessForOcr(canvas);
+
+  // Add padding for better tesseract recognition
+  const paddedCanvas = addPadding(processedCanvas, 30);
 
   // Update displayed preview to show processed image
   const ctx = elCropCanvas.getContext("2d");
-  elCropCanvas.width = processedCanvas.width;
-  elCropCanvas.height = processedCanvas.height;
-  ctx.drawImage(processedCanvas, 0, 0);
+  elCropCanvas.width = paddedCanvas.width;
+  elCropCanvas.height = paddedCanvas.height;
+  ctx.drawImage(paddedCanvas, 0, 0);
 
   const worker = await loadTesseract();
-  const { data } = await worker.recognize(processedCanvas);
+  const { data } = await worker.recognize(paddedCanvas);
+
+  console.log("OCR raw result:", data.text);
+  console.log("OCR confidence:", data.confidence);
+
   return data.text;
 }
 
