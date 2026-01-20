@@ -159,8 +159,16 @@ function preprocessForOcr(sourceCanvas) {
 async function loadTesseract() {
   if (tesseractWorker) return tesseractWorker;
 
-  const Tesseract = await import(TESSERACT_CDN);
-  tesseractWorker = await Tesseract.createWorker("eng", 1, {
+  const module = await import(TESSERACT_CDN);
+  // Handle both default and named exports
+  const createWorker = module.createWorker || module.default?.createWorker;
+
+  if (!createWorker) {
+    console.error("Tesseract module:", module);
+    throw new Error("Could not find createWorker in tesseract module");
+  }
+
+  tesseractWorker = await createWorker("eng", 1, {
     workerPath: "https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/worker.min.js",
     corePath: "https://cdn.jsdelivr.net/npm/tesseract.js-core@5/tesseract-core.wasm.js",
   });
