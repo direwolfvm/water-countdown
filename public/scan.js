@@ -142,7 +142,7 @@ function preprocessForOcr(sourceCanvas) {
 
     // For LCD: light digits on dark background
     // For tesseract: need black text on white background
-    // light (>threshold) → 0 (black), dark (<=threshold) → 255 (white)
+    // light pixels (digits) → black, dark pixels (background) → white
     const threshold = 120;
     const final = gray > threshold ? 0 : 255;
 
