@@ -132,23 +132,46 @@ function preprocessForOcr(sourceCanvas) {
   const imageData = ctx.getImageData(0, 0, width, height);
   const data = imageData.data;
 
-  // Convert to grayscale and threshold
-  // LCD has LIGHT digits on DARK background
-  // Tesseract needs BLACK text on WHITE background
-  // So: light pixels (digits) → black, dark pixels (background) → white
-  for (let i = 0; i < data.length; i += 4) {
-    // Grayscale using luminance formula
-    const gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+  // First pass: threshold to binary
+  // LCD has bright backlight with dark digit segments
+  const binary = new Uint8Array(width * height);
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const i = (y * width + x) * 4;
+      const gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+      // Dark pixels (digits) = 1, bright pixels (background) = 0
+      binary[y * width + x] = gray < 120 ? 1 : 0;
+    }
+  }
 
-    // LCD has bright blue backlight with dark digit segments
-    // So: bright pixels (background) → white, dark pixels (digits) → black
-    const threshold = 120;
-    const final = gray > threshold ? 255 : 0;
+  // Dilate: expand black (digit) pixels to fill gaps in 7-segment display
+  const dilated = new Uint8Array(width * height);
+  const radius = 2;
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      let found = 0;
+      for (let dy = -radius; dy <= radius && !found; dy++) {
+        for (let dx = -radius; dx <= radius && !found; dx++) {
+          const ny = y + dy;
+          const nx = x + dx;
+          if (ny >= 0 && ny < height && nx >= 0 && nx < width) {
+            if (binary[ny * width + nx] === 1) found = 1;
+          }
+        }
+      }
+      dilated[y * width + x] = found;
+    }
+  }
 
-    data[i] = final;     // R
-    data[i + 1] = final; // G
-    data[i + 2] = final; // B
-    // Alpha stays unchanged
+  // Write back: dilated digit pixels → black, background → white
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const i = (y * width + x) * 4;
+      const val = dilated[y * width + x] === 1 ? 0 : 255;
+      data[i] = val;
+      data[i + 1] = val;
+      data[i + 2] = val;
+    }
   }
 
   ctx.putImageData(imageData, 0, 0);
