@@ -140,11 +140,10 @@ function preprocessForOcr(sourceCanvas) {
     // Grayscale using luminance formula
     const gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
 
-    // For LCD: light digits on dark background
-    // For tesseract: need black text on white background
-    // light pixels (digits) → black, dark pixels (background) → white
+    // LCD has bright blue backlight with dark digit segments
+    // So: bright pixels (background) → white, dark pixels (digits) → black
     const threshold = 120;
-    const final = gray > threshold ? 0 : 255;
+    const final = gray > threshold ? 255 : 0;
 
     data[i] = final;     // R
     data[i + 1] = final; // G
