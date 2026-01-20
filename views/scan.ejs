@@ -1,5 +1,6 @@
 <section class="card scan-card">
   <h2>Scan Counter</h2>
+  <p class="scan-instructions">Fill the frame with just the blue LCD screen — avoid the metal border. OCR is basic and may misread; always verify before confirming.</p>
   <% if (lastValue !== null) { %>
     <p class="last-value-hint">Last observation: <strong><%= lastValue %></strong> — new value should be higher</p>
   <% } %>
@@ -64,4 +65,4 @@
 <input type="hidden" id="fountain-id" value="<%= fountainId %>" />
 <input type="hidden" id="last-value" value="<%= lastValue !== null ? lastValue : '' %>" />
 
-<script type="module" src="/scan.js?v=12"></script>
+<script type="module" src="/scan.js?v=13"></script>
