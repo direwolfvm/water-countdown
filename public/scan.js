@@ -114,6 +114,48 @@ function captureFrame() {
   return elCropCanvas;
 }
 
+// Preprocess image for better OCR on LCD displays
+function preprocessForOcr(sourceCanvas) {
+  const width = sourceCanvas.width;
+  const height = sourceCanvas.height;
+
+  // Create a processing canvas
+  const procCanvas = document.createElement("canvas");
+  procCanvas.width = width;
+  procCanvas.height = height;
+  const ctx = procCanvas.getContext("2d");
+
+  // Draw original
+  ctx.drawImage(sourceCanvas, 0, 0);
+
+  // Get image data
+  const imageData = ctx.getImageData(0, 0, width, height);
+  const data = imageData.data;
+
+  // Convert to grayscale, invert, and threshold
+  // This helps with light-on-dark LCD displays
+  for (let i = 0; i < data.length; i += 4) {
+    // Grayscale using luminance formula
+    const gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+
+    // Invert (LCD has light digits on dark background)
+    const inverted = 255 - gray;
+
+    // Apply threshold to create high contrast binary image
+    // Tune threshold for blue LCD backgrounds
+    const threshold = 100;
+    const final = inverted > threshold ? 255 : 0;
+
+    data[i] = final;     // R
+    data[i + 1] = final; // G
+    data[i + 2] = final; // B
+    // Alpha stays unchanged
+  }
+
+  ctx.putImageData(imageData, 0, 0);
+  return procCanvas;
+}
+
 // Load tesseract.js dynamically
 async function loadTesseract() {
   if (tesseractWorker) return tesseractWorker;
@@ -124,7 +166,7 @@ async function loadTesseract() {
     corePath: "https://cdn.jsdelivr.net/npm/tesseract.js-core@5/tesseract-core.wasm.js",
   });
 
-  // Configure for digits only
+  // Configure for digits only, optimized for LCD 7-segment displays
   await tesseractWorker.setParameters({
     tessedit_char_whitelist: "0123456789",
     tessedit_pageseg_mode: "7", // Single line
@@ -135,14 +177,25 @@ async function loadTesseract() {
 
 // Run OCR on the cropped canvas
 async function runOcr(canvas) {
+  // Preprocess for LCD display (invert, threshold)
+  const processedCanvas = preprocessForOcr(canvas);
+
+  // Update displayed preview to show processed image
+  const ctx = elCropCanvas.getContext("2d");
+  elCropCanvas.width = processedCanvas.width;
+  elCropCanvas.height = processedCanvas.height;
+  ctx.drawImage(processedCanvas, 0, 0);
+
   const worker = await loadTesseract();
-  const { data } = await worker.recognize(canvas);
+  const { data } = await worker.recognize(processedCanvas);
   return data.text;
 }
 
-// Extract digits from OCR text
+// Extract digits from OCR text and strip leading zeros
 function extractDigits(text) {
-  return text.replace(/[^0-9]/g, "");
+  const digits = text.replace(/[^0-9]/g, "");
+  // Strip leading zeros but keep at least one digit
+  return digits.replace(/^0+/, "") || "0";
 }
 
 // Validate the recognized value
