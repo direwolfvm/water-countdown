@@ -132,19 +132,18 @@ function preprocessForOcr(sourceCanvas) {
   const imageData = ctx.getImageData(0, 0, width, height);
   const data = imageData.data;
 
-  // Convert to grayscale, invert, and threshold
-  // This helps with light-on-dark LCD displays
+  // Convert to grayscale and threshold
+  // LCD has LIGHT digits on DARK background
+  // Tesseract needs BLACK text on WHITE background
+  // So: light pixels (digits) → black, dark pixels (background) → white
   for (let i = 0; i < data.length; i += 4) {
     // Grayscale using luminance formula
     const gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
 
-    // Invert (LCD has light digits on dark background)
-    const inverted = 255 - gray;
-
-    // Apply threshold to create high contrast binary image
-    // Tune threshold for blue LCD backgrounds
-    const threshold = 100;
-    const final = inverted > threshold ? 255 : 0;
+    // Threshold: light pixels become black (0), dark pixels become white (255)
+    // Threshold tuned for LCD displays - digits are brighter than ~140
+    const threshold = 140;
+    const final = gray > threshold ? 0 : 255;
 
     data[i] = final;     // R
     data[i + 1] = final; // G
