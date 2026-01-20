@@ -5,6 +5,7 @@ A small Node.js + Express app that tracks water fountain counter observations, c
 ## Features
 - Dashboard with time-series chart and projection to 30,000.
 - Management page to list and add observations by fountain.
+- **Camera scanning**: Use your phone camera to scan counter digits with OCR.
 - Manage multiple fountains with per-fountain targets.
 - PostgreSQL-backed storage (Cloud SQL compatible).
 - Simple server-rendered EJS templates.
@@ -88,6 +89,27 @@ gcloud sql databases create water-observations --instance=INSTANCE_NAME
 - `fountains` table: `id`, `name`, `target`.
 - `observations` table now includes `fountain_id` and existing rows are attached to the default fountain `734 JP` (target 30,000).
 
+## Camera scanning feature
+The `/scan` page lets you capture counter digits with your phone camera and auto-fill the observation form.
+
+**Requirements:**
+- **HTTPS required**: Camera access (`getUserMedia`) only works on secure origins. Works on `localhost` for development, but production must use HTTPS.
+- Works on mobile Safari (iOS 11+) and Chrome for Android.
+- Desktop browsers with webcam are supported but not the primary use case.
+
+**How it works:**
+1. Tap "Scan with camera" on the Manage page.
+2. Point camera at the counter digits, framing them in the overlay box.
+3. Tap Capture to freeze the frame.
+4. OCR runs client-side using [tesseract.js](https://github.com/naptha/tesseract.js) (loaded on-demand, ~2MB).
+5. Review and edit the recognized number, then Confirm.
+6. You're returned to the form with the value pre-filled for final submission.
+
+**Limitations:**
+- OCR accuracy depends on lighting, contrast, and digit clarity.
+- Always review the result before saving—the confirm step is mandatory.
+- All processing is client-side; no images are uploaded to the server.
+
 ## Project structure
 ```
 .
@@ -96,6 +118,8 @@ gcloud sql databases create water-observations --instance=INSTANCE_NAME
 ├── README.md
 ├── package.json
 ├── public
+│   ├── scan.css
+│   ├── scan.js
 │   └── styles.css
 ├── seed
 │   └── observations.csv
@@ -104,11 +128,13 @@ gcloud sql databases create water-observations --instance=INSTANCE_NAME
 │   ├── regression.js
 │   ├── routes
 │   │   ├── dashboard.js
-│   │   └── observations.js
+│   │   ├── observations.js
+│   │   └── scan.js
 │   ├── seed.js
 │   └── server.js
 └── views
     ├── dashboard.ejs
     ├── layout.ejs
-    └── observations.ejs
+    ├── observations.ejs
+    └── scan.ejs
 ```

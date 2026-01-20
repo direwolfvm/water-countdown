@@ -217,6 +217,20 @@ input[type="number"] {
   font-weight: 600;
 }
 
+.scan-button-row {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e0e6ea;
+}
+
+.button-scan {
+  background: var(--deep-blue);
+}
+
+.scan-icon {
+  margin-right: 0.3rem;
+}
+
 .muted {
   color: var(--muted);
 }

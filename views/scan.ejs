@@ -1,0 +1,63 @@
+<section class="card scan-card">
+  <h2>Scan Counter</h2>
+
+  <!-- Error state for unsupported browsers -->
+  <div id="scan-unsupported" class="scan-message" style="display: none;">
+    <p class="error">Camera access is not supported on this browser or device.</p>
+    <p>Please enter the value manually.</p>
+    <a href="/observations?fountain_id=<%= fountainId %>" class="button">Back to form</a>
+  </div>
+
+  <!-- Permission denied state -->
+  <div id="scan-denied" class="scan-message" style="display: none;">
+    <p class="error">Camera permission was denied.</p>
+    <p>Please allow camera access in your browser settings and reload, or enter the value manually.</p>
+    <a href="/observations?fountain_id=<%= fountainId %>" class="button">Back to form</a>
+  </div>
+
+  <!-- Loading state -->
+  <div id="scan-loading" class="scan-message">
+    <p>Initializing camera...</p>
+  </div>
+
+  <!-- Camera preview state -->
+  <div id="scan-preview" style="display: none;">
+    <div class="camera-container">
+      <video id="camera-video" autoplay playsinline></video>
+      <div class="scan-overlay">
+        <div class="scan-box"></div>
+      </div>
+    </div>
+    <p class="scan-hint">Position the counter digits inside the box</p>
+    <div class="scan-actions">
+      <button id="btn-capture" class="button button-large">Capture</button>
+      <a href="/observations?fountain_id=<%= fountainId %>" class="button button-secondary">Cancel</a>
+    </div>
+  </div>
+
+  <!-- Review state (after capture) -->
+  <div id="scan-review" style="display: none;">
+    <div class="review-container">
+      <canvas id="crop-canvas"></canvas>
+    </div>
+    <div id="ocr-loading" class="scan-message">
+      <p>Reading digits...</p>
+    </div>
+    <div id="ocr-result" style="display: none;">
+      <label for="recognized-value" class="scan-label">Recognized value</label>
+      <input type="number" id="recognized-value" class="scan-input" step="1" />
+      <p id="ocr-warning" class="scan-warning" style="display: none;"></p>
+    </div>
+    <div id="ocr-error" class="scan-message" style="display: none;">
+      <p class="error">Could not recognize any digits. Try again with better lighting or positioning.</p>
+    </div>
+    <div class="scan-actions">
+      <button id="btn-confirm" class="button button-large" style="display: none;">Confirm</button>
+      <button id="btn-retake" class="button button-secondary">Retake</button>
+    </div>
+  </div>
+</section>
+
+<input type="hidden" id="fountain-id" value="<%= fountainId %>" />
+
+<script type="module" src="/scan.js"></script>

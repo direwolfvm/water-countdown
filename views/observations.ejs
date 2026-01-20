@@ -95,7 +95,32 @@
     <input type="number" step="0.01" id="value" name="value" required />
     <button type="submit" class="button">Add</button>
   </form>
+  <div class="scan-button-row">
+    <a href="/scan?fountain_id=<%= selectedFountain ? selectedFountain.id : "" %>" class="button button-scan">
+      <span class="scan-icon">📷</span> Scan with camera
+    </a>
+  </div>
 </section>
+
+<script>
+// Prefill value from scanned query param
+(function() {
+  const params = new URLSearchParams(window.location.search);
+  const scanned = params.get("scanned");
+  if (scanned) {
+    const input = document.getElementById("value");
+    if (input) {
+      input.value = scanned;
+      input.focus();
+      input.select();
+    }
+    // Clean up URL without reload
+    params.delete("scanned");
+    const newUrl = window.location.pathname + (params.toString() ? "?" + params.toString() : "");
+    window.history.replaceState({}, "", newUrl);
+  }
+})();
+</script>
 
 <section class="card">
   <h2>Fountains</h2>

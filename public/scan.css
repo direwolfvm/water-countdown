@@ -1,0 +1,142 @@
+/* Scan page styles */
+
+.scan-card {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.scan-message {
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.scan-message p {
+  margin: 0.5rem 0;
+}
+
+/* Camera preview container */
+.camera-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: #000;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+#camera-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Overlay with scan box */
+.scan-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.scan-box {
+  width: 70%;
+  height: 25%;
+  border: 3px solid var(--seafoam);
+  border-radius: 8px;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.4);
+}
+
+.scan-hint {
+  text-align: center;
+  margin: 1rem 0 0.5rem;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+/* Action buttons */
+.scan-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.button-large {
+  padding: 0.75rem 2rem;
+  font-size: 1.1rem;
+  min-width: 140px;
+}
+
+/* Review state */
+.review-container {
+  display: flex;
+  justify-content: center;
+  background: #f0f0f0;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+#crop-canvas {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+
+/* OCR result input */
+.scan-label {
+  display: block;
+  text-align: center;
+  margin: 1rem 0 0.5rem;
+  font-weight: 600;
+}
+
+.scan-input {
+  display: block;
+  width: 100%;
+  max-width: 200px;
+  margin: 0 auto;
+  padding: 1rem;
+  font-size: 1.5rem;
+  text-align: center;
+  border: 2px solid var(--seafoam);
+  border-radius: 8px;
+}
+
+.scan-input:focus {
+  outline: none;
+  border-color: var(--deep-blue);
+}
+
+.scan-warning {
+  text-align: center;
+  color: #856404;
+  background: #fff3cd;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+}
+
+/* Large tap targets for mobile */
+@media (max-width: 600px) {
+  .button-large {
+    padding: 1rem 2rem;
+    font-size: 1.2rem;
+    width: 100%;
+  }
+
+  .scan-actions {
+    flex-direction: column;
+  }
+
+  .scan-input {
+    font-size: 2rem;
+    padding: 1.25rem;
+  }
+}

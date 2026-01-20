@@ -2,6 +2,7 @@ const path = require("path");
 const express = require("express");
 const dashboardRouter = require("./routes/dashboard");
 const observationsRouter = require("./routes/observations");
+const scanRouter = require("./routes/scan");
 const { initDb } = require("./db");
 
 const app = express();
@@ -14,6 +15,7 @@ app.use(express.static(path.join(__dirname, "..", "public")));
 
 app.use("/", dashboardRouter);
 app.use("/observations", observationsRouter);
+app.use("/scan", scanRouter);
 
 app.use((err, req, res, next) => {
   console.error(err);
