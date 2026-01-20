@@ -34,7 +34,7 @@
     </div>
     <p class="scan-hint">Position the counter digits inside the box</p>
     <div class="scan-actions">
-      <button id="btn-capture" class="button button-large">Capture</button>
+      <button id="btn-capture" class="button button-primary">Capture</button>
       <a href="/observations?fountain_id=<%= fountainId %>" class="button button-secondary">Cancel</a>
     </div>
   </div>
@@ -56,7 +56,7 @@
       <p class="error">Could not recognize any digits. Try again with better lighting or positioning.</p>
     </div>
     <div class="scan-actions">
-      <button id="btn-confirm" class="button button-large" style="display: none;">Confirm</button>
+      <button id="btn-confirm" class="button button-primary" style="display: none;">Confirm</button>
       <button id="btn-retake" class="button button-secondary">Retake</button>
     </div>
   </div>
@@ -65,4 +65,4 @@
 <input type="hidden" id="fountain-id" value="<%= fountainId %>" />
 <input type="hidden" id="last-value" value="<%= lastValue !== null ? lastValue : '' %>" />
 
-<script type="module" src="/scan.js?v=13"></script>
+<script type="module" src="/scan.js?v=14"></script>

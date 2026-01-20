@@ -83,9 +83,7 @@
   flex-wrap: wrap;
 }
 
-.button-large {
-  padding: 0.75rem 2rem;
-  font-size: 1.1rem;
+.scan-actions .button {
   min-width: 140px;
 }
 
@@ -139,16 +137,14 @@
   font-size: 0.9rem;
 }
 
-/* Large tap targets for mobile */
+/* Mobile adjustments */
 @media (max-width: 600px) {
-  .button-large {
-    padding: 1rem 2rem;
-    font-size: 1.2rem;
-    width: 100%;
-  }
-
   .scan-actions {
     flex-direction: column;
+  }
+
+  .scan-actions .button {
+    width: 100%;
   }
 
   .scan-input {
