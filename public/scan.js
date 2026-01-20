@@ -19,6 +19,8 @@ const btnCapture = document.getElementById("btn-capture");
 const btnConfirm = document.getElementById("btn-confirm");
 const btnRetake = document.getElementById("btn-retake");
 const fountainId = document.getElementById("fountain-id").value;
+const lastValueEl = document.getElementById("last-value");
+const lastValue = lastValueEl && lastValueEl.value ? Number(lastValueEl.value) : null;
 
 let mediaStream = null;
 let tesseractWorker = null;
@@ -257,16 +259,29 @@ function extractDigits(text) {
   return digits.replace(/^0+/, "") || "0";
 }
 
-// Validate the recognized value
+// Validate the recognized value against last observation
 function validateValue(value) {
   const num = parseInt(value, 10);
   if (isNaN(num)) return { valid: false };
 
-  // Warn if outside typical range (adjust as needed)
-  if (num < 1000 || num > 100000) {
-    return { valid: true, warning: `Value ${num} seems unusual. Please verify.` };
+  const warnings = [];
+
+  // Check against last observation (counter should always increase)
+  if (lastValue !== null) {
+    if (num <= lastValue) {
+      warnings.push(`Value ${num} is not greater than last observation (${lastValue}). This may be a misread.`);
+    }
   }
-  return { valid: true };
+
+  // Warn if outside typical range
+  if (num < 1000 || num > 100000) {
+    warnings.push(`Value ${num} seems unusual. Please verify.`);
+  }
+
+  return {
+    valid: true,
+    warning: warnings.length > 0 ? warnings.join(" ") : null
+  };
 }
 
 // Handle capture button

@@ -1,5 +1,8 @@
 <section class="card scan-card">
   <h2>Scan Counter</h2>
+  <% if (lastValue !== null) { %>
+    <p class="last-value-hint">Last observation: <strong><%= lastValue %></strong> — new value should be higher</p>
+  <% } %>
 
   <!-- Error state for unsupported browsers -->
   <div id="scan-unsupported" class="scan-message" style="display: none;">
@@ -59,5 +62,6 @@
 </section>
 
 <input type="hidden" id="fountain-id" value="<%= fountainId %>" />
+<input type="hidden" id="last-value" value="<%= lastValue !== null ? lastValue : '' %>" />
 
-<script type="module" src="/scan.js?v=11"></script>
+<script type="module" src="/scan.js?v=12"></script>
