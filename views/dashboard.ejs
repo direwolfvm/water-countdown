@@ -71,6 +71,58 @@
   const chartStartMs = <%- JSON.stringify(chartStartMs) %>;
   const ctx = document.getElementById("observationsChart").getContext("2d");
 
+  // Calculate weekend annotations
+  function getWeekendAnnotations(startMs, points) {
+    if (points.length === 0) return {};
+
+    const annotations = {};
+    const minX = 0;
+    const maxX = Math.max(...points.map(p => p.x));
+
+    // Start from the chart start date
+    const startDate = new Date(startMs);
+    const endDate = new Date(startMs + maxX * 1000);
+
+    // Find first Saturday at or before start
+    const current = new Date(startDate);
+    current.setHours(0, 0, 0, 0);
+    while (current.getDay() !== 6) {
+      current.setDate(current.getDate() - 1);
+    }
+
+    let weekendIndex = 0;
+    while (current <= endDate) {
+      // Saturday start
+      const satStart = new Date(current);
+      // Monday start (end of weekend)
+      const monStart = new Date(current);
+      monStart.setDate(monStart.getDate() + 2);
+
+      // Convert to x-axis values (seconds from chartStartMs)
+      const xMin = (satStart.getTime() - startMs) / 1000;
+      const xMax = (monStart.getTime() - startMs) / 1000;
+
+      // Only add if weekend overlaps with chart range
+      if (xMax > minX && xMin < maxX) {
+        annotations[`weekend${weekendIndex}`] = {
+          type: 'box',
+          xMin: Math.max(xMin, minX),
+          xMax: Math.min(xMax, maxX),
+          backgroundColor: 'rgba(0, 0, 0, 0.05)',
+          borderWidth: 0,
+        };
+        weekendIndex++;
+      }
+
+      // Move to next Saturday
+      current.setDate(current.getDate() + 7);
+    }
+
+    return annotations;
+  }
+
+  const weekendAnnotations = getWeekendAnnotations(chartStartMs, chartPoints);
+
   const datasets = [
     {
       label: "Observations",
@@ -116,6 +168,9 @@
               return `${context.dataset.label}: ${context.parsed.y} (${date.toLocaleDateString("en-US")})`;
             },
           },
+        },
+        annotation: {
+          annotations: weekendAnnotations,
         },
       },
       scales: {
