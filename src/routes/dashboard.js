@@ -1,6 +1,6 @@
 const express = require("express");
 const { query } = require("../db");
-const { computeProjection } = require("../regression");
+const { REGRESSION_TYPES, computeProjection } = require("../regression");
 
 const router = express.Router();
 
@@ -30,7 +30,16 @@ router.get("/", async (req, res, next) => {
 
     const targetValue = selectedFountain ? Number(selectedFountain.target) : 30000;
     const target = Number.isNaN(targetValue) ? 30000 : targetValue;
-    const projection = computeProjection(observations, target);
+    const selectedRegressionType = REGRESSION_TYPES.some(
+      (option) => option.id === req.query.regression_type
+    )
+      ? req.query.regression_type
+      : "linear";
+    const projection = computeProjection(
+      observations,
+      target,
+      selectedRegressionType
+    );
 
     let chartPoints = [];
     let regressionLine = [];
@@ -39,25 +48,21 @@ router.get("/", async (req, res, next) => {
     if (observations.length > 0) {
       chartStartMs = observations[0].observed_at.getTime();
       chartPoints = observations.map((obs) => ({
-        x: (obs.observed_at.getTime() - chartStartMs) / 1000,
+        x: (obs.observed_at.getTime() - chartStartMs) / (1000 * 60 * 60 * 24),
         y: obs.value,
       }));
     }
 
-    if (projection.hasRegression && chartPoints.length > 1) {
-      const { slope, intercept } = projection.regression;
-      const tStart = 0;
-      const tEnd = chartPoints[chartPoints.length - 1].x;
-      regressionLine = [
-        { x: tStart, y: intercept + slope * tStart },
-        { x: tEnd, y: intercept + slope * tEnd },
-      ];
+    if (projection.hasRegression && Array.isArray(projection.regressionLine)) {
+      regressionLine = projection.regressionLine;
     }
 
     res.render("layout", {
       title: "Water Fountain Tracker",
       body: "dashboard",
       fountains,
+      regressionTypes: REGRESSION_TYPES,
+      selectedRegressionType,
       selectedFountain,
       chartPoints,
       regressionLine,

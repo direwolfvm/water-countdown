@@ -5,19 +5,31 @@
       <h2><%= selectedFountain ? selectedFountain.name : "No fountain selected" %></h2>
       <p class="muted">Target: <%= targetLabel %></p>
     </div>
-    <% if (fountains.length > 0) { %>
-      <form method="GET" action="/" class="inline-form">
-        <label for="fountain_id" class="sr-only">Select fountain</label>
-        <select id="fountain_id" name="fountain_id">
-          <% fountains.forEach((fountain) => { %>
-            <option value="<%= fountain.id %>" <%= selectedFountain && fountain.id === selectedFountain.id ? "selected" : "" %>>
-              <%= fountain.name %>
+    <form method="GET" action="/" class="dashboard-selector-form">
+      <% if (fountains.length > 0) { %>
+        <div class="selector-group">
+          <label for="fountain_id">Fountain</label>
+          <select id="fountain_id" name="fountain_id">
+            <% fountains.forEach((fountain) => { %>
+              <option value="<%= fountain.id %>" <%= selectedFountain && fountain.id === selectedFountain.id ? "selected" : "" %>>
+                <%= fountain.name %>
+              </option>
+            <% }); %>
+          </select>
+        </div>
+      <% } %>
+      <div class="selector-group">
+        <label for="regression_type">Regression</label>
+        <select id="regression_type" name="regression_type">
+          <% regressionTypes.forEach((type) => { %>
+            <option value="<%= type.id %>" <%= type.id === selectedRegressionType ? "selected" : "" %>>
+              <%= `${type.label} (${type.example})` %>
             </option>
           <% }); %>
         </select>
-        <button type="submit" class="button">Switch</button>
-      </form>
-    <% } %>
+      </div>
+      <button type="submit" class="button">Update graph</button>
+    </form>
   </div>
 </section>
 
@@ -54,10 +66,11 @@
   <div class="regression-panel">
     <h3>Regression equation</h3>
     <% if (projection.hasRegression) { %>
-      <p><strong>y = m * t + b</strong></p>
-      <p>m (slope): <%= (projection.regression.slope * 86400).toFixed(4) %> per day</p>
-      <p>b (intercept): <%= projection.regression.intercept.toFixed(2) %></p>
-      <p>t = days since <%= new Date(projection.regression.t0).toISOString().slice(0, 10) %></p>
+      <p><strong><%= projection.regression.label %></strong></p>
+      <p><%= projection.regression.equation %></p>
+      <% projection.regression.parameterLines.forEach((line) => { %>
+        <p><%= line %></p>
+      <% }); %>
     <% } else { %>
       <p class="muted">Regression not available yet.</p>
     <% } %>
@@ -81,7 +94,7 @@
 
     // Start from the chart start date
     const startDate = new Date(startMs);
-    const endDate = new Date(startMs + maxX * 1000);
+    const endDate = new Date(startMs + maxX * 24 * 60 * 60 * 1000);
 
     // Find first Saturday at or before start
     const current = new Date(startDate);
@@ -98,9 +111,9 @@
       const monStart = new Date(current);
       monStart.setDate(monStart.getDate() + 2);
 
-      // Convert to x-axis values (seconds from chartStartMs)
-      const xMin = (satStart.getTime() - startMs) / 1000;
-      const xMax = (monStart.getTime() - startMs) / 1000;
+      // Convert to x-axis values (days from chartStartMs)
+      const xMin = (satStart.getTime() - startMs) / (1000 * 60 * 60 * 24);
+      const xMax = (monStart.getTime() - startMs) / (1000 * 60 * 60 * 24);
 
       // Only add if weekend overlaps with chart range
       if (xMax > minX && xMin < maxX) {
@@ -163,8 +176,8 @@
         tooltip: {
           callbacks: {
             label: (context) => {
-              const seconds = context.parsed.x || 0;
-              const date = new Date(chartStartMs + seconds * 1000);
+              const elapsedDays = context.parsed.x || 0;
+              const date = new Date(chartStartMs + elapsedDays * 24 * 60 * 60 * 1000);
               return `${context.dataset.label}: ${context.parsed.y} (${date.toLocaleDateString("en-US")})`;
             },
           },
@@ -182,7 +195,7 @@
           },
           ticks: {
             callback: (value) => {
-              const date = new Date(chartStartMs + value * 1000);
+              const date = new Date(chartStartMs + value * 24 * 60 * 60 * 1000);
               return date.toLocaleDateString("en-US", {
                 month: "short",
                 day: "numeric",
