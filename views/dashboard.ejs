@@ -71,6 +71,12 @@
       <% projection.regression.parameterLines.forEach((line) => { %>
         <p><%= line %></p>
       <% }); %>
+      <div class="fit-stats">
+        <p class="fit-stats-title">Fit statistics</p>
+        <p>R^2: <%= projection.regression.fitStats.rSquared === null ? "N/A" : projection.regression.fitStats.rSquared.toFixed(4) %></p>
+        <p>RMSE: <%= projection.regression.fitStats.rmse.toFixed(2) %></p>
+        <p>MAE: <%= projection.regression.fitStats.mae.toFixed(2) %></p>
+      </div>
     <% } else { %>
       <p class="muted">Regression not available yet.</p>
     <% } %>

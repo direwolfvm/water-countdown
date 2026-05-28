@@ -319,6 +319,34 @@ function buildRegressionLine(fit, maxTime) {
   return points;
 }
 
+function computeFitStats(times, values, fit) {
+  const predictedValues = times.map((time) => fit.predict(time));
+  const residuals = values.map((value, index) => value - predictedValues[index]);
+  const meanY = mean(values);
+
+  const sse = residuals.reduce((sum, residual) => sum + residual * residual, 0);
+  const sst = values.reduce((sum, value) => {
+    const diff = value - meanY;
+    return sum + diff * diff;
+  }, 0);
+  const mae =
+    residuals.reduce((sum, residual) => sum + Math.abs(residual), 0) / residuals.length;
+  const rmse = Math.sqrt(sse / residuals.length);
+
+  let rSquared = null;
+  if (Math.abs(sst) < EPSILON) {
+    rSquared = Math.abs(sse) < EPSILON ? 1 : null;
+  } else {
+    rSquared = 1 - sse / sst;
+  }
+
+  return {
+    rSquared,
+    rmse,
+    mae,
+  };
+}
+
 function computeProjection(observations, target, regressionType = "linear") {
   if (!Array.isArray(observations) || observations.length < 2) {
     return {
@@ -357,6 +385,7 @@ function computeProjection(observations, target, regressionType = "linear") {
     t0,
     equation: buildEquation(fit),
     parameterLines: [...fit.parameterLines, `t = days since ${new Date(t0).toISOString().slice(0, 10)}`],
+    fitStats: computeFitStats(times, values, fit),
   };
 
   const projectedTime = fit.projectTime(target, latestTime);
