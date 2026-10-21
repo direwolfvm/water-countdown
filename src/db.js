@@ -6,12 +6,18 @@ const { Pool } = require("pg");
 let poolConfig;
 
 if (process.env.INSTANCE_CONNECTION_NAME) {
-  // Cloud SQL Auth Proxy - uses Unix socket with service account auth
+  // Cloud SQL Auth Proxy - uses Unix socket; credentials come from the
+  // environment (DB_PASSWORD from Secret Manager on Cloud Run).
+  for (const name of ["DB_USER", "DB_PASSWORD", "DB_NAME"]) {
+    if (!process.env[name]) {
+      throw new Error(`${name} must be set when INSTANCE_CONNECTION_NAME is set`);
+    }
+  }
   poolConfig = {
     host: `/cloudsql/${process.env.INSTANCE_CONNECTION_NAME}`,
-    user: process.env.DB_USER || "water_user",
-    password: process.env.DB_PASSWORD || "waterapp2024pass",
-    database: process.env.DB_NAME || "water-observations",
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
   };
 } else {
   // Direct TCP connection

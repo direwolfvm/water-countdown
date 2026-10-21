@@ -25,7 +25,7 @@ DB_NAME=water-observations
 
 **Cloud Run (Cloud SQL Auth Proxy):**
 - Set `INSTANCE_CONNECTION_NAME` - app auto-detects and uses Unix socket
-- Uses `water_user` with password for socket auth
+- Needs `DB_USER` and `DB_NAME` env vars, plus `DB_PASSWORD` from Secret Manager (`water-countdown-db-password`); no fallbacks in code
 - Do NOT set empty `DB_PASSWORD`; remove old TCP env vars when using proxy
 
 ## Architecture

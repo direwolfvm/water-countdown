@@ -29,7 +29,7 @@ DB_NAME=water-observations
 ```
 INSTANCE_CONNECTION_NAME=PROJECT_ID:REGION:INSTANCE_NAME
 DB_USER=water_user
-DB_PASSWORD=waterapp2024pass
+DB_PASSWORD=<from Secret Manager: water-countdown-db-password>
 DB_NAME=water-observations
 ```
 
@@ -73,7 +73,7 @@ The app is configured to deploy from GitHub via Cloud Build. On Cloud Run, it us
 Required setup:
 1. Create a database user for the app:
 ```
-gcloud sql users create water_user --instance=INSTANCE_NAME --password=waterapp2024pass
+gcloud sql users create water_user --instance=INSTANCE_NAME --password="$(cat new-password-file)"  # store it in Secret Manager, never in the repo
 ```
 
 2. Ensure the `water-observations` database exists:
@@ -83,7 +83,9 @@ gcloud sql databases create water-observations --instance=INSTANCE_NAME
 
 3. Environment variables are automatically set by Cloud Build/Cloud Run:
    - `INSTANCE_CONNECTION_NAME` is injected via the `cloudsql-instances` annotation
-   - The app uses `water_user` with its password for authentication via the Unix socket
+   - `DB_USER` and `DB_NAME` are plain env vars on the service
+   - `DB_PASSWORD` is mounted from the Secret Manager secret `water-countdown-db-password`
+   - The app refuses to start if any of the three is missing
 
 ## Data model
 - `fountains` table: `id`, `name`, `target`.
